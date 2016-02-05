@@ -1,43 +1,41 @@
 module Stats where
 
 lengthf : List a -> Float
-lengthf xs = List.length xs |> Basics.toFloat
+lengthf xs = List.length xs |> toFloat
+
+emptyListErrMsg : String -> String
+emptyListErrMsg funcName = "Cannot compute the " ++ funcName ++ " of an empty list."
 
 {-| Calculates the arithmetic mean of a list of numbers.
 -}
-mean : List Float -> Maybe Float
+mean : List Float -> Result String Float
 mean xs =
-  if List.isEmpty xs then Nothing
+  if List.isEmpty xs then
+    Err <| emptyListErrMsg "mean"
   else
-    let
-      n = lengthf xs
-      total = List.sum xs
-    in
-      Just (total / n)
+    Ok <| (List.sum xs) / (lengthf xs)
 
 {-| Calculates the geometric mean of a list of numbers.
 See https://en.wikipedia.org/wiki/Geometric_mean for a definition.
 -}
-geometricMean : List Float -> Maybe Float
+geometricMean : List Float -> Result String Float
 geometricMean xs =
-  if List.isEmpty xs then Nothing
+  if List.isEmpty xs then
+    Err <| emptyListErrMsg "geometric mean"
   else
-    let
-      n = lengthf xs
-      prod = List.product xs
-    in
-      Just (prod ^ (1 / n))
+    Ok <| (List.product xs) ^ (1 / lengthf xs)
 
 {-| Calculates the harmonic mean of a list of numbers.
 See https://en.wikipedia.org/wiki/Harmonic_mean for a definition.
 -}
-harmonicMean : List Float -> Maybe Float
+harmonicMean : List Float -> Result String Float
 harmonicMean xs =
-  if List.isEmpty xs || List.any ((>=) 0) xs
-    then Nothing
+  if List.isEmpty xs then
+    Err <| emptyListErrMsg "harmonic mean"
+  else if List.any ((>=) 0) xs then
+    Err <| "The harmonic mean is defined only for lists of numbers strictly greater than zero."
   else
     let
-      n = lengthf xs
       sumReciprocals = xs |> List.map ((/) 1) |> List.sum
     in
-      Just (n / sumReciprocals)
+      Ok <| lengthf xs / sumReciprocals
