@@ -61,7 +61,7 @@ max xs =
       Ok m
 
     Nothing ->
-      Err "Maximum is not defined for empty lists."
+      Err emptyListErrMsg "maximum"
 
 
 {-| Returns the smallest number in a list. Wraps List.minimum to return
@@ -74,4 +74,4 @@ min xs =
       Ok m
 
     Nothing ->
-      Err "Minimum is not defined for empty lists."
+      Err emptyListErrMsg "minimum"
