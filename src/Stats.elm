@@ -6,7 +6,7 @@ lengthf xs = List.length xs |> toFloat
 emptyListErrMsg : String -> String
 emptyListErrMsg funcName = "Cannot compute the " ++ funcName ++ " of an empty list."
 
-{-| Calculates the arithmetic mean of a list of numbers.
+{-| Returns the arithmetic mean of a list of numbers.
 -}
 mean : List Float -> Result String Float
 mean xs =
@@ -15,7 +15,7 @@ mean xs =
   else
     Ok <| (List.sum xs) / (lengthf xs)
 
-{-| Calculates the geometric mean of a list of numbers.
+{-| Returns the geometric mean of a list of numbers.
 See https://en.wikipedia.org/wiki/Geometric_mean for a definition.
 -}
 geometricMean : List Float -> Result String Float
@@ -25,7 +25,7 @@ geometricMean xs =
   else
     Ok <| (List.product xs) ^ (1 / lengthf xs)
 
-{-| Calculates the harmonic mean of a list of numbers.
+{-| Returns the harmonic mean of a list of numbers.
 See https://en.wikipedia.org/wiki/Harmonic_mean for a definition.
 -}
 harmonicMean : List Float -> Result String Float
@@ -39,3 +39,19 @@ harmonicMean xs =
       sumReciprocals = xs |> List.map ((/) 1) |> List.sum
     in
       Ok <| lengthf xs / sumReciprocals
+
+{-| Returns the largest number in a list. Wraps List.maximum to return
+a Result type like the other functions.
+-}
+max : List Float -> Result String Float
+max xs = case (List.maximum xs) of
+  Just m -> Ok m
+  Nothing -> Err "Maximum is not defined for empty lists."
+
+{-| Returns the smallest number in a list. Wraps List.minimum to return
+a Result type like the other functions.
+-}
+min : List Float -> Result String Float
+min xs = case (List.minimum xs) of
+  Just m -> Ok m
+  Nothing -> Err "Minimum is not defined for empty lists."
