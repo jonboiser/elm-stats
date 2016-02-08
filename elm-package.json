@@ -8,6 +8,8 @@
     ],
     "exposed-modules": [],
     "dependencies": {
+        "circuithub/elm-list-extra": "3.9.0 <= v < 4.0.0",
+        "circuithub/elm-maybe-extra": "1.6.0 <= v < 2.0.0",
         "elm-lang/core": "3.0.0 <= v < 4.0.0"
     },
     "elm-version": "0.16.0 <= v < 0.17.0"
