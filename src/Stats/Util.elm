@@ -1,5 +1,6 @@
-module Stats.Util where
+module Stats.Util (..) where
 
+{-|-}
 import List.Extra as LExtra
 
 {-| Given a list, returns a list of tuples whose first element is a list
@@ -10,4 +11,10 @@ groupCount xs =
   if List.isEmpty xs then []
   else
     LExtra.group xs
-    |> List.map (ys -> (List.head ys, List.length ys))
+    |> List.map (\ys -> (List.head ys, List.length ys))
+
+{-| Returns n-factorial, where n is an integer.
+-}
+factorial : Int -> Int
+factorial n =
+  List.product [1..n]
