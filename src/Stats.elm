@@ -61,7 +61,7 @@ max xs =
       Ok m
 
     Nothing ->
-      Err emptyListErrMsg "maximum"
+      Err <| emptyListErrMsg "maximum"
 
 
 {-| Returns the smallest number in a list. Wraps List.minimum to return
@@ -74,4 +74,4 @@ min xs =
       Ok m
 
     Nothing ->
-      Err emptyListErrMsg "minimum"
+      Err <| emptyListErrMsg "minimum"
