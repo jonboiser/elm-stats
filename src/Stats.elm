@@ -75,3 +75,30 @@ min xs =
 
     Nothing ->
       Err <| emptyListErrMsg "minimum"
+
+
+{-| Returns the median of a list of numbers.
+-}
+median : List Float -> Result String Float
+median xs =
+  if List.isEmpty xs then
+    Err <| emptyListErrMsg "median"
+  else
+    let
+      n =
+        List.length xs
+
+      xsSorted =
+        List.sort xs
+
+      middleVals =
+        if (n % 2 == 0) then
+          xsSorted
+            |> List.drop (n // 2 - 1)
+            |> List.take 2
+        else
+          xsSorted
+            |> List.drop (n // 2)
+            |> List.take 1
+    in
+      Result.map Basics.identity (mean middleVals)

@@ -13,7 +13,7 @@ groupCount xs =
     LExtra.group xs
     |> List.map (\ys -> (List.head ys, List.length ys))
 
-{-| Returns n-factorial, where n is an integer.
+{-| Returns n!, where n is an integer.
 -}
 factorial : Int -> Int
 factorial n =
