@@ -18,3 +18,13 @@ groupCount xs =
 factorial : Int -> Int
 factorial n =
   List.product [1..n]
+
+{-| Given a list of data and an integer n, returns a list of lists (chunks)
+each of size n. If the size of the list is not divisble by n, the last chunk
+will contain the remainder.
+-}
+chunk : Int -> List a -> List (List a)
+chunk n xs =
+  if List.isEmpty xs then []
+  else
+    (List.take n xs) :: (List.drop n xs |> chunk n)
