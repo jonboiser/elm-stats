@@ -3,7 +3,9 @@ A port of simple statistics to Elm
 
 ## Modules
 
-### Stats: Common statistical calculations of central tendency and spread.
+### Stats
+
+Common statistical calculations of central tendency and spread.
 
 * mad
 * mode
@@ -18,17 +20,45 @@ A port of simple statistics to Elm
 * sampleSkewness
 * sampleStandardDeviation
 
-### Stats.Distributions: Simulating random processes from different distributions.
+### Stats.Distribution
+
+Simulating random processes from different distributions.
 
 * sample
-* (r/d/p/q) bernoulli
-* (r/d/p/q) binomial
-* (r/d/p/q) poisson
-* (r/d/p/q) gaussian
+* bernoulliProcess
+* binomialProcess
+* poissonProcess
+* gaussianProcess
 
-### Stats.Tests: Common statistical tests (e.g. t-test, chi-squared).
+Possible API:
 
-### Stats.Learning: Algorithms for statistical learning and classification.
+For sampling:
+```{elm}
+bernoulliProcess : Float -> Distribution Bool
+
+sampleFromProcess : Distribution a -> Int -> List a
+
+bernX : Distribution Bool = bernoulliProcess 0.4
+sampleFromProcess bernX 10
+-- Returns 10 IID Bernoulli samples from {True, False}
+```
+
+For getting PDF, CDF values:
+```{elm}
+pdf : Distribution a -> a -> Float
+cdf : Distribution a -> a -> Float
+
+bernPdf = pdf bernX
+bernPdf True -- 0.4
+```
+
+### Stats.Tests
+
+Common statistical tests (e.g. t-test, chi-squared).
+
+### Stats.Learning
+
+Algorithms for statistical learning and classification.
 
 * BayesianClassifier
 * PerceptronModel
@@ -36,6 +66,8 @@ A port of simple statistics to Elm
 * linearRegressionLine
 * ckmeans
 
-### Stat.Util: Utility functions that don't fit in the other modules.
+### Stat.Util
+
+Utility functions that don't fit in the other modules.
 
 * chunk
