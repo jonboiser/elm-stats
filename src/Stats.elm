@@ -102,3 +102,19 @@ median xs =
             |> List.take 1
     in
       Result.map Basics.identity (mean middleVals)
+
+{-| Returns the MAD (median absolute deviation) of a list of numbers
+-}
+mad : List Float -> Result String Float
+mad xs =
+  if List.isEmpty xs then
+    Err <| emptyListErrMsg "mean absolute deviation"
+  else
+    let
+      subtractFromMedian m =
+        List.map (\x -> Basics.abs (x - m)) xs
+
+      deviations =
+        Result.map subtractFromMedian (median xs)
+    in
+      Result.andThen deviations median
