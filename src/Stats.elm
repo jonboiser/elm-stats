@@ -1,7 +1,5 @@
 module Stats (..) where
 
-import List.Extra as LExtra
-
 
 lengthf : List a -> Float
 lengthf xs =
