@@ -1,4 +1,4 @@
-module Stats (..) where
+module Stats exposing (..)
 
 
 lengthf : List a -> Float
