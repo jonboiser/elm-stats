@@ -109,10 +109,33 @@ mad xs =
     Err <| emptyListErrMsg "mean absolute deviation"
   else
     let
-      subtractFromMedian m =
+      subtractedFromMedian m =
         List.map (\x -> Basics.abs (x - m)) xs
 
       deviations =
-        Result.map subtractFromMedian (median xs)
+        Result.map subtractedFromMedian (median xs)
     in
       Result.andThen deviations median
+
+
+type alias Comp a = Result String a
+
+{-| Returns the variance of a list of numbers
+-}
+variance : List Float -> Comp Float
+variance xs =
+  let
+    d = (lengthf xs) - 1
+
+    subtractFromMean : Comp Float -> List Float
+    subtractFromMean m =
+      case m of
+        Ok mu -> List.map (\x -> (x - mu)^2) xs
+        Err _ -> []
+
+    sub = subtractFromMean (mean xs)
+  in
+    if List.isEmpty sub then
+      Err ""
+    else
+      Ok <| (List.foldr (+) 0 sub) / d

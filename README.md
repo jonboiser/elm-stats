@@ -4,12 +4,17 @@ A port of simple statistics to Elm
 ## Modules
 
 ### Stats
-
 Common statistical calculations of central tendency and spread.
 
-* mad
-* mode
-* variance
+* mad ✅
+* median ✅
+* geometricMean ✅
+* harmonicMean ✅
+* mean ✅
+* mode ✅
+* min ✅
+* max ✅
+* variance ✅
 * quantile
 * quantileSorted
 * standardDeviation
