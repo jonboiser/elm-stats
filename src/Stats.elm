@@ -139,3 +139,34 @@ variance xs =
       Err ""
     else
       Ok <| (List.foldr (+) 0 sub) / d
+
+
+{-| Returns the value representing the lower boundry of the p-th quantile
+-}
+quantile : comparable -> List (comparable) -> Comp comparable
+quantile p xs =
+  if (p < 0 || p > 1) then
+    Err "The quantile must be between 0 and 1, inclusive."
+  else
+    case p of
+      0   -> max xs
+      1   -> min xs
+      0.5 -> median xs
+      _   ->
+        let
+          len = List.length xs
+          takeN = List.take <| if (len % 2 == 0) then 2 else 1
+          dropN = List.drop <| quantileIndex len p
+          qVal : List (Float)
+          qVal = takeN <| dropN <| List.sort <| xs
+        in
+          mean qVal
+
+
+-- Determine which index(es) of the sorted array would correspond
+-- to the p-percentile.
+-- E.g. if array is length 11, and p = 0.5 then it would the 6th
+-- E.g. if array is length 10, then it would be average of 5 and 6
+quantileIndex : Int -> Float -> Int
+quantileIndex len p =
+  ceiling <| p * (toFloat len)
