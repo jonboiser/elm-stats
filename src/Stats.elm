@@ -52,7 +52,7 @@ harmonicMean xs =
 {-| Returns the largest number in a list. Wraps List.maximum to return
 a Result type like the other functions.
 -}
-max : List Float -> Result String Float
+max : List comparable -> Result String comparable
 max xs =
   case (List.maximum xs) of
     Just m ->
@@ -65,7 +65,7 @@ max xs =
 {-| Returns the smallest number in a list. Wraps List.minimum to return
 a Result type like the other functions.
 -}
-min : List Float -> Result String Float
+min : List comparable -> Result String comparable
 min xs =
   case (List.minimum xs) of
     Just m ->
