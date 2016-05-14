@@ -1,41 +1,45 @@
 module Stats exposing (..)
 
 
-lengthf : List a -> Float
-lengthf xs =
-  List.length xs |> toFloat
+type alias Sample number = List number
+type alias Result a = Result.Result String a
 
+lengthf : List a -> Float
+lengthf =
+  toFloat << List.length
 
 emptyListErrMsg : String -> String
 emptyListErrMsg funcName =
   "Cannot compute the " ++ funcName ++ " of an empty list."
 
 
-{-| Returns the arithmetic mean of a list of numbers.
+{-| Returns the arithmetic mean of a List of numbers.
 -}
-mean : List Float -> Result String Float
+mean : Sample Float -> Result Float
 mean xs =
-  if List.isEmpty xs then
-    Err <| emptyListErrMsg "mean"
-  else
-    Ok <| (List.sum xs) / (lengthf xs)
+  case xs of
+    [] ->
+      Err <| emptyListErrMsg "mean"
+    _ ->
+      Ok <| (List.sum xs) / (lengthf xs)
 
 
-{-| Returns the geometric mean of a list of numbers.
+{-| Returns the geometric mean of a List of numbers.
 See https://en.wikipedia.org/wiki/Geometric_mean for a definition.
 -}
-geometricMean : List Float -> Result String Float
+geometricMean : Sample Float -> Result Float
 geometricMean xs =
-  if List.isEmpty xs then
-    Err <| emptyListErrMsg "geometric mean"
-  else
-    Ok <| (List.product xs) ^ (1 / lengthf xs)
+  case xs of
+    [] ->
+      Err <| emptyListErrMsg "geometric mean"
+    _ ->
+      Ok  <| (List.product xs) ^ (1 / lengthf xs)
 
 
-{-| Returns the harmonic mean of a list of numbers.
+{-| Returns the harmonic mean of a List of numbers.
 See https://en.wikipedia.org/wiki/Harmonic_mean for a definition.
 -}
-harmonicMean : List Float -> Result String Float
+harmonicMean : Sample Float -> Result Float
 harmonicMean xs =
   if List.isEmpty xs then
     Err <| emptyListErrMsg "harmonic mean"
@@ -43,16 +47,16 @@ harmonicMean xs =
     Err <| "The harmonic mean is defined only for lists of numbers strictly greater than zero."
   else
     let
-      sumReciprocals =
-        xs |> List.map ((/) 1) |> List.sum
+      sumOfReciprocals =
+        xs |> List.map ((/) 1.0) |> List.sum
     in
-      Ok <| lengthf xs / sumReciprocals
+      Ok <| lengthf xs / sumOfReciprocals
 
 
 {-| Returns the largest number in a list. Wraps List.maximum to return
 a Result type like the other functions.
 -}
-max : List comparable -> Result String comparable
+max : Sample comparable -> Result comparable
 max xs =
   case (List.maximum xs) of
     Just m ->
@@ -65,7 +69,7 @@ max xs =
 {-| Returns the smallest number in a list. Wraps List.minimum to return
 a Result type like the other functions.
 -}
-min : List comparable -> Result String comparable
+min : Sample comparable -> Result comparable
 min xs =
   case (List.minimum xs) of
     Just m ->
@@ -77,33 +81,13 @@ min xs =
 
 {-| Returns the median of a list of numbers.
 -}
-median : List Float -> Result String Float
-median xs =
-  if List.isEmpty xs then
-    Err <| emptyListErrMsg "median"
-  else
-    let
-      n =
-        List.length xs
+median : Sample Float -> Result Float
+median = quantile 0.5
 
-      xsSorted =
-        List.sort xs
-
-      middleVals =
-        if (n % 2 == 0) then
-          xsSorted
-            |> List.drop (n // 2 - 1)
-            |> List.take 2
-        else
-          xsSorted
-            |> List.drop (n // 2)
-            |> List.take 1
-    in
-      Result.map Basics.identity (mean middleVals)
 
 {-| Returns the MAD (median absolute deviation) of a list of numbers
 -}
-mad : List Float -> Result String Float
+mad : List Float -> Result Float
 mad xs =
   if List.isEmpty xs then
     Err <| emptyListErrMsg "mean absolute deviation"
@@ -118,46 +102,46 @@ mad xs =
       Result.andThen deviations median
 
 
-type alias Comp a = Result String a
+-- Move to Util
+subtractThenSquare : number -> List number -> List number
+subtractThenSquare d xs =
+  List.map (\x -> (x - d) ^ 2) xs
 
-{-| Returns the variance of a list of numbers
+
+{-| Returns the variance of a List of numbers.
 -}
-variance : List Float -> Comp Float
+variance : Sample Float -> Result Float
 variance xs =
-  let
-    d = (lengthf xs) - 1
+  case mean xs of
+    Err err ->
+      Err <| "Cannot compute the mean: " ++ err
+    Ok mu ->
+      let
+        denom =
+          (lengthf xs) - 1
 
-    subtractFromMean : Comp Float -> List Float
-    subtractFromMean m =
-      case m of
-        Ok mu -> List.map (\x -> (x - mu)^2) xs
-        Err _ -> []
-
-    sub = subtractFromMean (mean xs)
-  in
-    if List.isEmpty sub then
-      Err ""
-    else
-      Ok <| (List.foldr (+) 0 sub) / d
+        sumOfDiffsSquared =
+          subtractThenSquare mu xs
+          |> List.sum
+      in
+        Ok <| sumOfDiffsSquared / denom
 
 
-{-| Returns the value representing the lower boundry of the p-th quantile
+{-| Returns the value representing the boundary of the q-th quantile.
 -}
-quantile : comparable -> List (comparable) -> Comp comparable
-quantile p xs =
-  if (p < 0 || p > 1) then
-    Err "The quantile must be between 0 and 1, inclusive."
+quantile : comparable -> List (comparable) -> Result comparable
+quantile q xs =
+  if (q < 0 || q > 1) then
+    Err "The quantile `q` must be between 0 and 1, inclusive."
   else
-    case p of
+    case q of
       0   -> max xs
       1   -> min xs
-      0.5 -> median xs
       _   ->
         let
           len = List.length xs
           takeN = List.take <| if (len % 2 == 0) then 2 else 1
-          dropN = List.drop <| quantileIndex len p
-          qVal : List (Float)
+          dropN = List.drop <| quantileIndex len q
           qVal = takeN <| dropN <| List.sort <| xs
         in
           mean qVal
