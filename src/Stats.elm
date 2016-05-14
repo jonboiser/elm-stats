@@ -152,28 +152,48 @@ toProportion p =
 
 {-| Returns the value representing the boundary of the q-th quantile.
 -}
-quantile : comparable -> List (comparable) -> Result comparable
+quantile : Float -> Sample -> Statistic
 quantile q xs =
-  if (q < 0 || q > 1) then
-    Err "The quantile `q` must be between 0 and 1, inclusive."
-  else
-    case q of
-      0   -> max xs
-      1   -> min xs
-      _   ->
-        let
-          len = List.length xs
-          takeN = List.take <| if (len % 2 == 0) then 2 else 1
-          dropN = List.drop <| quantileIndex len q
-          qVal = takeN <| dropN <| List.sort <| xs
-        in
-          mean qVal
+    case toProportion q of
+        Err err ->
+            Err <| "Invalid value of q: " ++ err
+
+        Ok p ->
+            if p == 0 then
+                min xs
+            else if p == 1 then
+                max xs
+            else
+                quantileByInterpolation p xs
 
 
--- Determine which index(es) of the sorted array would correspond
--- to the p-percentile.
--- E.g. if array is length 11, and p = 0.5 then it would the 6th
--- E.g. if array is length 10, then it would be average of 5 and 6
-quantileIndex : Int -> Float -> Int
-quantileIndex len p =
-  ceiling <| p * (toFloat len)
+interpolate : Float -> (Float -> Float -> Float)
+interpolate x l r =
+    l + x * (r - l)
+
+
+{-| Calculate quantile from a sample via interpolation.
+Corresponds to the default algorithm used in R's `quantile`.
+-}
+quantileByInterpolation : Float -> Sample -> Statistic
+quantileByInterpolation q xs =
+    let
+        h =
+            q * ((lengthf xs) - 1)
+
+        idx =
+            floor h
+
+        sortedxs =
+            Array.fromList (List.sort xs)
+
+        q1 =
+            Array.get idx sortedxs
+
+        q2 =
+            Array.get (idx + 1) sortedxs
+
+        yhat =
+            Maybe.map2 (interpolate (h - (toFloat idx))) q1 q2
+    in
+        Result.fromMaybe "" yhat
