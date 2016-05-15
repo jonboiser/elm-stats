@@ -1,37 +1,45 @@
 # elm-stats
-A port of simple statistics to Elm
+Statistics for Elm. Some of its API is borrowed from the [Simple Statistics](http://simplestatistics.org/) for JavaScript.
 
 ## Modules
 
-### Stats
-Common statistical calculations of central tendency and spread.
+### `Stats`
 
-#### Done
+Functions for measuring the central tendency and spread of sample data.
 
-* mad
-* median
+#### Type aliases
+User-provided data is assumed to be real-valued (i.e. represented by floating-point numbers).
+
+* `Sample = List Float`
+* `Stat = Result.Result String Float`
+
+#### Functions
+
+Released in 1.0:
 * geometricMean
 * harmonicMean
-* mean
-* mode
-* min
+* mad (mean absolute deviation)
 * max
-* variance
+* mean
+* median
+* min
+* mode
 * quantile
-
-## TODO
 * quantileSorted
-* standardDeviation
 * rootMeanSquare
+* standardDeviation
+* variance
+
+TODO for 1.1:
 * sortedUniqueCount
 * sampleCorrelation
-* sampleCovariance
+* sampleCovariances
 * sampleSkewness
 * sampleStandardDeviation
 
-### Stats.Distribution
+### `Stats.Distribution`
 
-Simulating random processes from different distributions.
+Will aim to release in 1.2, or soon thereafter. Simulating random processes from different distributions.
 
 #### Distributions
 * Bernoulli
@@ -39,6 +47,11 @@ Simulating random processes from different distributions.
 * Poisson
 * Gaussian
 * Uniform
+
+#### Functions
+* for sampling
+* for converting between `Event`s and `Float`
+* for sampling directly to `Float`
 
 #### WIP API for sampling
 ```{elm}
@@ -61,8 +74,9 @@ seed0 = initialSeed 12345
 sampleFromProcess : Distribution a -> Int -> List a
 
 -- TODO a convenience method that wraps the above process
--- randomN : Seed -> Int -> Distribution -> List (Event)
-randomVals = randomN 100
+-- randomN : Seed -> Distribution -> Int -> List (Event)
+genRandomVals = randomN seed0 unif
+genRandomVals 100 == [Binary True, Binary False, ...]
 ```
 
 
@@ -84,11 +98,15 @@ bernPdf (Binary True) == 0.6
 bernPdf (Binary False) == 0.4
 ```
 
-### Stats.Tests
+### `Stats.Util`
+Functions that don't really fit in any of the other modules.
+* chunk
+
+### `Stats.Inference`
 
 Common statistical tests (e.g. t-test, chi-squared).
 
-### Stats.Learning
+### `Stats.Learning`
 
 Algorithms for statistical learning and classification.
 
@@ -97,9 +115,3 @@ Algorithms for statistical learning and classification.
 * linearRegression
 * linearRegressionLine
 * ckmeans
-
-### Stat.Util
-
-Utility functions that don't fit in the other modules.
-
-* chunk
