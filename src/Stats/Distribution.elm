@@ -1,6 +1,8 @@
 module Stats.Distribution exposing (..)
 
 
+import Random.Pcg exposing (..)
+
 type Distribution
     = Bernoulli Float
     | Binomial Float Int
@@ -15,20 +17,23 @@ type Event
     | Discrete Int
 
 
-randomEvent : Distribution -> Event
-randomEvent dist =
+randomEvent : Seed -> Distribution -> (Event, Seed)
+randomEvent seed dist =
     case dist of
         Bernoulli p ->
-            Binary True
+            (Binary True, seed)
 
         Binomial p n ->
-            Discrete 0
+            (Discrete 0, seed)
 
         Gaussian mu sigma ->
-            Continuous 0
+            (Continuous 0, seed)
 
         Poisson lambda ->
-            Continuous 0
+            (Continuous 0, seed)
 
         Uniform a b ->
-            Continuous 0
+            let
+                (x, newSeed) = step (float a b) seed
+            in
+                (Continuous x, newSeed)
