@@ -16,18 +16,21 @@ lengthf =
     toFloat << List.length
 
 
-emptyListErrMsg : String -> String
+emptyListErrMsg : String -> Result String a
 emptyListErrMsg funcName =
-    "Cannot compute the " ++ funcName ++ " of an empty list."
+    Err <| "Cannot compute the " ++ funcName ++ " of an empty list."
 
 
 {-| Returns the arithmetic mean of a List of numbers.
+    mean [1..5] = Ok 3
+    mean [1, 1, -1, 1] = Ok 0.5
+    mean [] = Err "Cannot compute the mean of an empty list."
 -}
 mean : Sample -> Statistic
 mean xs =
     case xs of
         [] ->
-            Err <| emptyListErrMsg "mean"
+            emptyListErrMsg "mean"
 
         _ ->
             Ok <| (List.sum xs) / (lengthf xs)
@@ -35,24 +38,31 @@ mean xs =
 
 {-| Returns the geometric mean of a List of numbers.
 See https://en.wikipedia.org/wiki/Geometric_mean for a definition.
+    geometricMean [1..5] = Ok 2.605171084697352
+    geometricMean [1, 1, 1] = Ok 1
+    geometricMean [0..5] = Ok 0
+    geometricMean [-1..5] = Err "The geometric mean is defined only for lists of numbers greater than or equal to zero."
 -}
 geometricMean : Sample -> Statistic
 geometricMean xs =
-    case xs of
-        [] ->
-            Err <| emptyListErrMsg "geometric mean"
-
-        _ ->
-            Ok <| (List.product xs) ^ (1 / lengthf xs)
+    if List.isEmpty xs then
+        emptyListErrMsg "geometric mean"
+    else if List.any ((>) 0) xs then
+        Err <| "The geometric mean is defined only for lists of numbers greater than or equal to zero."
+    else
+        Ok <| (List.product xs) ^ (1 / lengthf xs)
 
 
 {-| Returns the harmonic mean of a List of numbers.
 See https://en.wikipedia.org/wiki/Harmonic_mean for a definition.
+    harmonicMean [1..5] = Ok 2.18978102189781
+    harmonicMean [1, 1, 1] = Ok 1
+    harmonicMean [0..5] = Err "The geometric mean is defined only for lists of numbers greater than or equal to zero."
 -}
 harmonicMean : Sample -> Statistic
 harmonicMean xs =
     if List.isEmpty xs then
-        Err <| emptyListErrMsg "harmonic mean"
+        emptyListErrMsg "harmonic mean"
     else if List.any ((>=) 0) xs then
         Err <| "The harmonic mean is defined only for lists of numbers strictly greater than zero."
     else
@@ -65,43 +75,59 @@ harmonicMean xs =
 
 {-| Returns the largest number in a list. Wraps List.maximum to return
 a Result type like the other functions.
+    maximum [10, 4, 2, -3] = Ok 10
+    maximum [(-10)..(-5)] = Ok -5
+    maximum [] = Err "Cannot compute the maximum of an empty list."
 -}
-max : Sample -> Statistic
-max xs =
+maximum : Sample -> Statistic
+maximum xs =
     case (List.maximum xs) of
         Just m ->
             Ok m
 
         Nothing ->
-            Err <| emptyListErrMsg "maximum"
+            emptyListErrMsg "maximum"
 
 
 {-| Returns the smallest number in a list. Wraps List.minimum to return
 a Result type like the other functions.
+    minimum [10, 4, 2, -3] = Ok -3
+    minimum [(-10)..(-5)] = Ok -10
+    minimum [] = Err "Cannot compute the minimum of an empty list."
 -}
-min : Sample -> Statistic
-min xs =
+minimum : Sample -> Statistic
+minimum xs =
     case (List.minimum xs) of
         Just m ->
             Ok m
 
         Nothing ->
-            Err <| emptyListErrMsg "minimum"
+            emptyListErrMsg "minimum"
 
 
-{-| Returns the median of a list of numbers.
+{-| Returns the median of a list of numbers. An alias for (quantile 0.5).
+    median [1..5] = Ok 3
+    median [1..6] = Ok 3.5
+    median [] = Err "Cannot compute the median of an empty list."
 -}
 median : Sample -> Statistic
-median =
-    quantile 0.5
+median xs =
+    if List.isEmpty xs then
+        emptyListErrMsg "median"
+    else
+        quantile 0.5 xs
 
 
 {-| Returns the MAD (median absolute deviation) of a list of numbers
+    mad [1..5] = Ok 1
+    mad [1, 1, 1] = Ok 0
+    mad [(-4)..4] = Ok 2
+    mad [] = Err "Cannot compute the mean absolute deviation of an empty list."
 -}
 mad : Sample -> Statistic
 mad xs =
     if List.isEmpty xs then
-        Err <| emptyListErrMsg "mean absolute deviation"
+        emptyListErrMsg "mean absolute deviation"
     else
         let
             subtractedFromMedian m =
@@ -160,9 +186,9 @@ quantile q xs =
 
         Ok p ->
             if p == 0 then
-                min xs
+                minimum xs
             else if p == 1 then
-                max xs
+                maximum xs
             else
                 quantileByInterpolation p xs
 
@@ -196,4 +222,4 @@ quantileByInterpolation q xs =
         yhat =
             Maybe.map2 (interpolate (h - (toFloat idx))) q1 q2
     in
-        Result.fromMaybe "" yhat
+        Result.fromMaybe "Error computing the quantile." yhat
