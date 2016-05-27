@@ -1,4 +1,4 @@
-module Stats exposing (..)
+module Stats exposing (mean, geometricMean, harmonicMean, median, maximum, minimum, mad, variance)
 
 import Array exposing (Array)
 
@@ -22,6 +22,7 @@ emptyListErrMsg funcName =
 
 
 {-| Returns the arithmetic mean of a List of numbers.
+
     mean [1..5] = Ok 3
     mean [1, 1, -1, 1] = Ok 0.5
     mean [] = Err "Cannot compute the mean of an empty list."
@@ -38,6 +39,7 @@ mean xs =
 
 {-| Returns the geometric mean of a List of numbers.
 See https://en.wikipedia.org/wiki/Geometric_mean for a definition.
+
     geometricMean [1..5] = Ok 2.605171084697352
     geometricMean [1, 1, 1] = Ok 1
     geometricMean [0..5] = Ok 0
@@ -55,6 +57,7 @@ geometricMean xs =
 
 {-| Returns the harmonic mean of a List of numbers.
 See https://en.wikipedia.org/wiki/Harmonic_mean for a definition.
+
     harmonicMean [1..5] = Ok 2.18978102189781
     harmonicMean [1, 1, 1] = Ok 1
     harmonicMean [0..5] = Err "The geometric mean is defined only for lists of numbers greater than or equal to zero."
@@ -75,6 +78,7 @@ harmonicMean xs =
 
 {-| Returns the largest number in a list. Wraps List.maximum to return
 a Result type like the other functions.
+
     maximum [10, 4, 2, -3] = Ok 10
     maximum [(-10)..(-5)] = Ok -5
     maximum [] = Err "Cannot compute the maximum of an empty list."
@@ -91,6 +95,7 @@ maximum xs =
 
 {-| Returns the smallest number in a list. Wraps List.minimum to return
 a Result type like the other functions.
+
     minimum [10, 4, 2, -3] = Ok -3
     minimum [(-10)..(-5)] = Ok -10
     minimum [] = Err "Cannot compute the minimum of an empty list."
@@ -106,6 +111,7 @@ minimum xs =
 
 
 {-| Returns the median of a list of numbers. An alias for (quantile 0.5).
+
     median [1..5] = Ok 3
     median [1..6] = Ok 3.5
     median [] = Err "Cannot compute the median of an empty list."
@@ -119,6 +125,7 @@ median xs =
 
 
 {-| Returns the MAD (median absolute deviation) of a list of numbers
+
     mad [1..5] = Ok 1
     mad [1, 1, 1] = Ok 0
     mad [(-4)..4] = Ok 2
