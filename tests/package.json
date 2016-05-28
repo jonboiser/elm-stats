@@ -1,0 +1,13 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tests.js",
+  "scripts": {
+    "pretest": "elm-make Tests.elm --output tests.js",
+    "test": "node tests.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
